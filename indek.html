@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>bikin.dev — Studio Pengembangan Web & Aplikasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0c11;
+    --surface:#12151c;
+    --surface-2:#191d26;
+    --border:#252a37;
+    --ink:#e9ebf1;
+    --ink-dim:#8993a8;
+    --ink-faint:#565d70;
+    --violet:#b18aff;
+    --violet-dim:#8a6dc9;
+    --blue:#6fb3ff;
+    --green:#7fe0a8;
+    --amber:#ffb86b;
+    --grad:linear-gradient(120deg,var(--violet),var(--blue));
+    --r-lg:20px;
+    --r-md:14px;
+    --r-sm:8px;
+    --shadow:0 24px 60px -24px rgba(0,0,0,0.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:'Sora',sans-serif; letter-spacing:-0.02em; font-weight:700; color:var(--ink);}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  ul{list-style:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  img{max-width:100%; display:block;}
+  ::selection{background:var(--violet); color:#0a0c11;}
+  :focus-visible{outline:2px solid var(--blue); outline-offset:3px; border-radius:4px;}
+
+  .container{max-width:1160px; margin:0 auto; padding:0 24px;}
+  .section{padding:88px 0;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--violet);
+    display:inline-block;
+    margin-bottom:16px;
+    letter-spacing:0.01em;
+  }
+  .section-head{max-width:640px; margin-bottom:48px;}
+  .section-head h2{font-size:clamp(28px,4vw,38px); margin-bottom:14px;}
+  .section-head p{color:var(--ink-dim); font-size:16px; max-width:520px;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 24px; border-radius:999px; font-weight:600; font-size:15px;
+    transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color .18s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{ background:var(--grad); color:#08090c; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 30px -8px rgba(177,138,255,0.45); }
+  .btn-ghost{ background:transparent; border:1px solid var(--border); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--ink-dim); background:var(--surface); }
+  .btn-sm{ padding:9px 18px; font-size:14px; }
+
+  /* NAV */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    border-bottom:1px solid transparent;
+    transition:background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+  }
+  .nav.scrolled{
+    background:rgba(10,12,17,0.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:18px 24px; }
+  .logo{ font-family:'JetBrains Mono',monospace; font-weight:600; font-size:16px; display:flex; align-items:center; gap:9px; }
+  .logo-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); }
+  .nav-links{ display:flex; gap:32px; }
+  .nav-links a{ font-size:14.5px; color:var(--ink-dim); transition:color .15s ease; }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-right{ display:flex; align-items:center; gap:14px; }
+  .nav-toggle{ display:none; flex-direction:column; gap:5px; padding:6px; }
+  .nav-toggle span{ width:20px; height:2px; background:var(--ink); border-radius:2px; transition:transform .2s ease, opacity .2s ease; }
+  .nav-toggle.active span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.active span:nth-child(2){ opacity:0; }
+  .nav-toggle.active span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+  .nav-mobile{
+    display:none; position:fixed; top:0; right:0; bottom:0; width:min(78vw,320px);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:90px 28px 28px; transform:translateX(100%); transition:transform .3s ease;
+    z-index:99; flex-direction:column; gap:22px;
+  }
+  .nav-mobile.open{ transform:translateX(0); }
+  .nav-mobile a{ font-size:17px; color:var(--ink); }
+  .nav-scrim{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:98; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  .nav-scrim.open{ opacity:1; pointer-events:auto; }
+
+  /* HERO */
+  .hero{ padding:150px 0 90px; position:relative; }
+  .hero-glow{ position:absolute; top:-120px; right:-160px; width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle,rgba(177,138,255,0.16),transparent 65%); filter:blur(10px); pointer-events:none; z-index:0; }
+  .hero-grid{ display:grid; grid-template-columns:1fr; gap:56px; align-items:center; position:relative; z-index:1; }
+  .hero-title{ font-size:clamp(32px,5.4vw,52px); line-height:1.12; margin-bottom:20px; }
+  .hero-title .grad-text{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero-sub{ color:var(--ink-dim); font-size:17px; max-width:480px; margin-bottom:32px; }
+  .hero-actions{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:36px; }
+  .hero-stack{ font-size:13px; color:var(--ink-faint); }
+  .hero-stack .mono{ color:var(--ink-dim); }
+
+  /* TERMINAL (signature element) */
+  .terminal{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .terminal-bar{ display:flex; align-items:center; gap:8px; padding:13px 16px; border-bottom:1px solid var(--border); background:var(--surface-2); }
+  .terminal-dot{ width:10px; height:10px; border-radius:50%; }
+  .terminal-dot.red{ background:#ff6b6b; } .terminal-dot.amber{ background:#ffc66b; } .terminal-dot.green{ background:#6bde8f; }
+  .terminal-file{ margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--ink-faint); }
+  .terminal-body{ padding:26px 22px; font-family:'JetBrains Mono',monospace; font-size:14px; min-height:230px; }
+  .terminal-body .line{ margin-bottom:11px; color:var(--ink-dim); opacity:0; }
+  .terminal-body .line.shown{ opacity:1; }
+  .terminal-body .prompt{ color:var(--blue); }
+  .terminal-body .arrow{ color:var(--violet); }
+  .terminal-body .check{ color:var(--green); }
+  .cursor{ display:inline-block; width:8px; height:15px; background:var(--ink-dim); vertical-align:middle; animation:blink 1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* VALUE STRIP */
+  .values{ border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .values-grid{ display:grid; grid-template-columns:1fr; gap:0; }
+  .value-row{ display:flex; gap:14px; padding:20px 0; border-bottom:1px solid var(--border); }
+  .value-row:last-child{ border-bottom:none; }
+  .value-row .mono{ color:var(--green); font-size:14px; flex-shrink:0; padding-top:2px; }
+  .value-row p{ color:var(--ink); font-size:15.5px; }
+  .value-row p b{ color:var(--ink); }
+
+  /* SERVICES */
+  .services-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+  .s-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:26px; transition:transform .2s ease, border-color .2s ease; }
+  .s-card:hover{ transform:translateY(-3px); border-color:var(--violet-dim); }
+  .s-icon{ width:38px; height:38px; border-radius:10px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; margin-bottom:16px; color:var(--violet); }
+  .s-card h3{ font-size:17px; margin-bottom:8px; }
+  .s-card p{ color:var(--ink-dim); font-size:14.5px; }
+
+  /* PROCESS */
+  .process-list{ display:flex; flex-direction:column; }
+  .p-item{ display:flex; gap:22px; padding:26px 0; border-top:1px solid var(--border); }
+  .p-item:last-child{ border-bottom:1px solid var(--border); }
+  .p-num{ font-family:'JetBrains Mono',monospace; color:var(--ink-faint); font-size:14px; padding-top:3px; min-width:28px; }
+  .p-item h3{ font-size:17px; margin-bottom:6px; }
+  .p-item p{ color:var(--ink-dim); font-size:15px; max-width:520px; }
+
+  /* PORTFOLIO */
+  .pf-grid{ display:grid; grid-template-columns:1fr; gap:20px; }
+  .pf-card{ border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--surface); transition:transform .2s ease, border-color .2s ease; }
+  .pf-card:hover{ transform:translateY(-3px); border-color:var(--violet-dim); }
+  .pf-thumb{ height:130px; position:relative; display:flex; align-items:center; }
+  .pf-thumb::before{ content:""; position:absolute; inset:0; opacity:0.85; }
+  .pf-thumb.t1::before{ background:linear-gradient(135deg,#3a2a63,#1c3a5e); }
+  .pf-thumb.t2::before{ background:linear-gradient(135deg,#2a3a4a,#3a2a4a); }
+  .pf-thumb.t3::before{ background:linear-gradient(135deg,#2a4a3a,#2a2a4a); }
+  .pf-chrome{ position:relative; z-index:1; display:flex; gap:5px; padding:10px 14px; }
+  .pf-chrome span{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.35); }
+  .pf-body{ padding:20px; }
+  .pf-tag{ display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11.5px; padding:4px 10px; border-radius:999px; background:var(--surface-2); color:var(--green); margin-bottom:12px; }
+  .pf-body h3{ font-size:16px; margin-bottom:6px; }
+  .pf-body p{ color:var(--ink-dim); font-size:14px; }
+
+  /* PRICING */
+  .price-grid{ display:grid; grid-template-columns:1fr; gap:18px; }
+  .price-card{ border:1px solid var(--border); border-radius:var(--r-lg); padding:30px 26px; background:var(--surface); position:relative; }
+  .price-card.featured{ border-color:var(--violet-dim); background:linear-gradient(180deg,rgba(177,138,255,0.06),transparent 40%),var(--surface); }
+  .price-badge{ position:absolute; top:-13px; right:24px; background:var(--amber); color:#1a1206; font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; padding:4px 12px; border-radius:999px; }
+  .price-tier{ font-size:13px; color:var(--ink-dim); margin-bottom:10px; }
+  .price-amount{ font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:600; margin-bottom:4px; }
+  .price-note{ font-size:13px; color:var(--ink-faint); margin-bottom:22px; }
+  .price-list{ display:flex; flex-direction:column; gap:11px; margin-bottom:26px; }
+  .price-list li{ display:flex; gap:10px; font-size:14.5px; color:var(--ink-dim); }
+  .price-list li .mono{ color:var(--green); }
+  .price-card .btn{ width:100%; }
+
+  /* FAQ */
+  .faq-list{ border-top:1px solid var(--border); }
+  .faq-item{ border-bottom:1px solid var(--border); }
+  .faq-q{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:20px; padding:22px 4px; text-align:left; font-size:16px; font-weight:600; }
+  .faq-icon{ flex-shrink:0; width:20px; height:20px; position:relative; }
+  .faq-icon::before, .faq-icon::after{ content:""; position:absolute; background:var(--ink-dim); border-radius:2px; transition:transform .25s ease, opacity .25s ease; }
+  .faq-icon::before{ width:14px; height:2px; top:9px; left:3px; }
+  .faq-icon::after{ width:2px; height:14px; top:3px; left:9px; }
+  .faq-item.open .faq-icon::after{ transform:rotate(90deg); opacity:0; }
+  .faq-a{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .faq-a p{ padding:0 4px 22px; color:var(--ink-dim); font-size:15px; max-width:560px; }
+  .faq-item.open .faq-a{ max-height:200px; }
+
+  /* CTA */
+  .cta-box{ border:1px solid var(--border); border-radius:var(--r-lg); padding:56px 40px; text-align:center; position:relative; overflow:hidden;
+    background:radial-gradient(circle at 50% 0%, rgba(177,138,255,0.1), transparent 60%), var(--surface); }
+  .cta-box .mono{ color:var(--blue); font-size:13px; display:block; margin-bottom:16px; }
+  .cta-box h2{ font-size:clamp(26px,4vw,36px); margin-bottom:14px; }
+  .cta-box p{ color:var(--ink-dim); max-width:440px; margin:0 auto 28px; }
+  .cta-actions{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; }
+
+  /* FOOTER */
+  footer{ border-top:1px solid var(--border); padding:56px 0 28px; }
+  .foot-grid{ display:grid; grid-template-columns:1fr; gap:36px; margin-bottom:40px; }
+  .foot-brand p{ color:var(--ink-dim); font-size:14px; margin-top:10px; max-width:280px; }
+  .foot-col h4{ font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--ink-faint); font-weight:500; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.04em; }
+  .foot-col a, .foot-col span{ display:block; color:var(--ink-dim); font-size:14.5px; margin-bottom:10px; }
+  .foot-col a:hover{ color:var(--ink); }
+  .foot-bottom{ border-top:1px solid var(--border); padding-top:24px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; font-size:13px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; }
+
+  /* REVEAL */
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease; }
+  .reveal.visible{ opacity:1; transform:translateY(0); }
+
+  @media (min-width:640px){
+    .values-grid{ grid-template-columns:repeat(3,1fr); }
+    .value-row{ flex-direction:column; border-bottom:none; border-right:1px solid var(--border); padding:4px 24px; }
+    .value-row:first-child{ padding-left:0; }
+    .value-row:last-child{ border-right:none; }
+    .services-grid{ grid-template-columns:repeat(2,1fr); }
+    .pf-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (min-width:860px){
+    .nav-links{ display:flex; }
+    .nav-toggle{ display:none; }
+    .hero-grid{ grid-template-columns:1.05fr 0.95fr; gap:60px; }
+    .price-grid{ grid-template-columns:repeat(3,1fr); }
+    .pf-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width:859px){
+    .nav-links{ display:none; }
+    .nav-toggle{ display:flex; }
+    .nav-mobile{ display:flex; }
+    .nav-scrim{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo"><span class="logo-dot"></span>bikin<span style="color:var(--ink-dim)">.dev</span></a>
+    <ul class="nav-links">
+      <li><a href="#layanan">Layanan</a></li>
+      <li><a href="#proses">Proses</a></li>
+      <li><a href="#proyek">Proyek</a></li>
+      <li><a href="#harga">Harga</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="#kontak" class="btn btn-primary btn-sm">Mulai Proyek</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Buka menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="nav-scrim" id="navScrim"></div>
+<div class="nav-mobile" id="navMobile">
+  <a href="#layanan">Layanan</a>
+  <a href="#proses">Proses</a>
+  <a href="#proyek">Proyek</a>
+  <a href="#harga">Harga</a>
+  <a href="#faq">FAQ</a>
+  <a href="#kontak" class="btn btn-primary" style="margin-top:8px;">Mulai Proyek</a>
+</div>
+
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">// studio pengembangan web & aplikasi</span>
+      <h1 class="hero-title">Dari ide ke produk digital yang <span class="grad-text">siap dipakai</span>.</h1>
+      <p class="hero-sub">Kami bantu bangun website dan aplikasi — dari landing page sampai dashboard full-stack — dengan kode yang rapi dan proses yang jelas dari awal sampai selesai.</p>
+      <div class="hero-actions">
+        <a href="#kontak" class="btn btn-primary">Mulai Konsultasi Gratis</a>
+        <a href="#layanan" class="btn btn-ghost">Lihat Layanan</a>
+      </div>
+      <p class="hero-stack">Dibangun dengan <span class="mono">Next.js · React · TypeScript · Tailwind · Supabase</span></p>
+    </div>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span><span class="terminal-dot amber"></span><span class="terminal-dot green"></span>
+        <span class="terminal-file">init.sh</span>
+      </div>
+      <div class="terminal-body" id="terminalBody"></div>
+    </div>
+  </div>
+</header>
+
+<section class="values">
+  <div class="container values-grid">
+    <div class="value-row"><span class="mono">01</span><p><b>Kode rapi.</b> Terstruktur dan didokumentasikan, bukan asal jalan lalu ditinggal.</p></div>
+    <div class="value-row"><span class="mono">02</span><p><b>Desain custom.</b> Dirancang sesuai kebutuhan, bukan template yang itu-itu saja.</p></div>
+    <div class="value-row"><span class="mono">03</span><p><b>Komunikasi jujur.</b> Progress dan kendala dilaporkan apa adanya, tanpa istilah teknis membingungkan.</p></div>
+  </div>
+</section>
+
+<section class="section" id="layanan">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">// layanan</span>
+      <h2>Yang bisa kami kerjakan</h2>
+      <p>Empat area utama, dari yang paling sering dibutuhkan sampai yang paling teknis.</p>
+    </div>
+    <div class="services-grid">
+      <div class="s-card reveal">
+        <div class="s-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.6 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.6-3.8-9s1.3-6.5 3.8-9z"/></svg></div>
+        <h3>Website & Landing Page</h3>
+        <p>Company profile, landing page produk, atau portofolio pribadi — enak dilihat di HP maupun desktop.</p>
+      </div>
+      <div class="s-card reveal">
+        <div class="s-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+        <h3>Web App & Dashboard</h3>
+        <p>Aplikasi dengan login, database, dan fitur custom sesuai alur kerja — bukan sekadar tampilan statis.</p>
+      </div>
+      <div class="s-card reveal">
+        <div class="s-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l-4 3 4 3M18 9l4 3-4 3M14 5l-4 14"/></svg></div>
+        <h3>Integrasi API & Backend</h3>
+        <p>Sambungkan website ke payment gateway, database, atau layanan pihak ketiga lain dengan aman.</p>
+      </div>
+      <div class="s-card reveal">
+        <div class="s-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 4.5-9 4.5-9-4.5L12 3z"/><path d="M3 12l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5"/></svg></div>
+        <h3>Code Review & Mentoring</h3>
+        <p>Sudah punya kode sendiri? Kami bantu review dan jelaskan kenapa — biar kamu makin paham, bukan cuma dapat hasil jadi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="proses" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">// proses</span>
+      <h2>Cara kerja, dari awal sampai selesai</h2>
+      <p>Lima langkah yang sama untuk setiap proyek, supaya prosesnya jelas dan bisa dipantau.</p>
+    </div>
+    <div class="process-list reveal">
+      <div class="p-item"><span class="p-num">01</span><div><h3>Konsultasi</h3><p>Cerita soal kebutuhan dan tujuan proyek kamu — gratis, tanpa komitmen lanjut.</p></div></div>
+      <div class="p-item"><span class="p-num">02</span><div><h3>Rencana & desain</h3><p>Scope dan tampilan (UI/UX) disusun dulu sebelum masuk ke penulisan kode.</p></div></div>
+      <div class="p-item"><span class="p-num">03</span><div><h3>Development</h3><p>Fitur dibangun bertahap, dengan update progress berkala supaya tidak ada kejutan.</p></div></div>
+      <div class="p-item"><span class="p-num">04</span><div><h3>Testing & revisi</h3><p>Dicek menyeluruh, lalu direvisi sesuai jumlah yang disepakati di awal.</p></div></div>
+      <div class="p-item"><span class="p-num">05</span><div><h3>Serah terima</h3><p>Kamu terima source code lengkap plus panduan singkat cara pakai dan pengembangannya.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="proyek">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">// proyek</span>
+      <h2>Proyek yang sedang dikerjakan</h2>
+      <p>Portofolio ini akan terus bertambah seiring proyek baru selesai.</p>
+    </div>
+    <div class="pf-grid">
+      <div class="pf-card reveal">
+        <div class="pf-thumb t1"><div class="pf-chrome"><span></span><span></span><span></span></div></div>
+        <div class="pf-body">
+          <span class="pf-tag">Sedang Dikembangkan</span>
+          <h3>AIStack Pro</h3>
+          <p>AI tools directory & prompt marketplace. Next.js, TypeScript, Supabase.</p>
+        </div>
+      </div>
+      <div class="pf-card reveal">
+        <div class="pf-thumb t2"><div class="pf-chrome"><span></span><span></span><span></span></div></div>
+        <div class="pf-body">
+          <span class="pf-tag" style="color:var(--amber)">Contoh Proyek</span>
+          <h3>Landing Page UMKM</h3>
+          <p>Company profile untuk usaha kuliner lokal, lengkap dengan menu dan lokasi.</p>
+        </div>
+      </div>
+      <div class="pf-card reveal">
+        <div class="pf-thumb t3"><div class="pf-chrome"><span></span><span></span><span></span></div></div>
+        <div class="pf-body">
+          <span class="pf-tag" style="color:var(--amber)">Contoh Proyek</span>
+          <h3>Dashboard Admin</h3>
+          <p>Panel admin sederhana untuk kelola data dan pengguna dengan role akses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="harga" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">// harga</span>
+      <h2>Paket yang bisa disesuaikan</h2>
+      <p>Tiga titik awal yang umum dipakai — detail akhir selalu didiskusikan dulu saat konsultasi.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <div class="price-tier">Landing Page</div>
+        <div class="price-amount">Rp 500rb+</div>
+        <div class="price-note">satu kali bayar</div>
+        <ul class="price-list">
+          <li><span class="mono">✓</span>1 halaman, desain custom</li>
+          <li><span class="mono">✓</span>Responsif di semua perangkat</li>
+          <li><span class="mono">✓</span>Form kontak terpasang</li>
+          <li><span class="mono">✓</span>2x revisi</li>
+        </ul>
+        <a href="#kontak" class="btn btn-ghost">Pilih Paket</a>
+      </div>
+      <div class="price-card featured reveal">
+        <span class="price-badge">Populer</span>
+        <div class="price-tier">Web App</div>
+        <div class="price-amount">Rp 2jt+</div>
+        <div class="price-note">satu kali bayar</div>
+        <ul class="price-list">
+          <li><span class="mono">✓</span>Multi-halaman + dashboard</li>
+          <li><span class="mono">✓</span>Login & database</li>
+          <li><span class="mono">✓</span>3x revisi</li>
+          <li><span class="mono">✓</span>30 hari support pasca-launch</li>
+        </ul>
+        <a href="#kontak" class="btn btn-primary">Pilih Paket</a>
+      </div>
+      <div class="price-card reveal">
+        <div class="price-tier">Custom</div>
+        <div class="price-amount" style="font-size:20px;">Hubungi Kami</div>
+        <div class="price-note">penawaran khusus</div>
+        <ul class="price-list">
+          <li><span class="mono">✓</span>Kebutuhan skala besar</li>
+          <li><span class="mono">✓</span>Integrasi sistem kompleks</li>
+          <li><span class="mono">✓</span>Timeline & tim khusus</li>
+          <li><span class="mono">✓</span>Konsultasi mendalam di awal</li>
+        </ul>
+        <a href="#kontak" class="btn btn-ghost">Diskusikan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">// faq</span>
+      <h2>Pertanyaan yang sering muncul</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q"><span>Berapa lama waktu pengerjaan?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Tergantung skop. Landing page biasanya 3–7 hari, web app 2–4 minggu. Estimasi pasti diberikan setelah konsultasi.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Bisa revisi berapa kali?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Sesuai paket yang dipilih. Jumlah revisi disepakati di awal supaya jelas dan tidak molor.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Bagaimana sistem pembayarannya?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Umumnya DP di awal, sisanya saat serah terima. Bisa didiskusikan lagi sesuai skala proyek.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Source code jadi milik saya sepenuhnya?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Iya. Setelah proyek selesai dan lunas, seluruh source code diserahkan termasuk hak untuk dikembangkan sendiri.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Bisa bantu maintenance setelah selesai?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Bisa, tersedia sebagai layanan terpisah kalau kamu butuh update atau perbaikan di kemudian hari.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Saya masih pemula, boleh tanya-tanya dulu?</span><span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Boleh banget. Konsultasi awal selalu gratis dan tanpa kewajiban lanjut.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="kontak">
+  <div class="container">
+    <div class="cta-box reveal">
+      <span class="mono">$ mulai-proyek --sekarang</span>
+      <h2>Ada ide yang mau diwujudkan?</h2>
+      <p>Cerita dulu soal proyek kamu — tidak ada kewajiban lanjut kalau ternyata belum cocok.</p>
+      <div class="cta-actions">
+        <!-- GANTI href WhatsApp & email di bawah dengan kontak asli -->
+        <a href="https://wa.me/62 831-7398-7529" class="btn btn-primary">Chat via WhatsApp</a>
+        <a href="mailto:fatonkamal025@gmail.com" class="btn btn-ghost">Kirim Email</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#" class="logo"><span class="logo-dot"></span>bikin<span style="color:var(--ink-dim)">.dev</span></a>
+        <p>Studio pengembangan web & aplikasi. Dari ide sampai deploy.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Navigasi</h4>
+        <a href="#layanan">Layanan</a>
+        <a href="#proses">Proses</a>
+        <a href="#proyek">Proyek</a>
+        <a href="#harga">Harga</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="foot-col">
+        <h4>Kontak</h4>
+        <span>fatonkamal025@gmail.com</span>
+        <span>+62 831-7398-7529</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 bikin.dev</span>
+      <span>dibuat dengan Profesional Web Development</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav
+  const navToggle = document.getElementById('navToggle');
+  const navMobile = document.getElementById('navMobile');
+  const navScrim = document.getElementById('navScrim');
+  function closeMobileNav(){
+    navMobile.classList.remove('open');
+    navScrim.classList.remove('open');
+    navToggle.classList.remove('active');
+  }
+  navToggle.addEventListener('click', () => {
+    navMobile.classList.toggle('open');
+    navScrim.classList.toggle('open');
+    navToggle.classList.toggle('active');
+  });
+  navScrim.addEventListener('click', closeMobileNav);
+  document.querySelectorAll('.nav-mobile a').forEach(a => a.addEventListener('click', closeMobileNav));
+
+  // Sticky nav background
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 16);
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Scroll reveal
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealEls = document.querySelectorAll('.reveal');
+  if(reduceMotion){
+    revealEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+  }
+
+  // Terminal typing animation (signature element)
+  const terminalLines = [
+    { html: '<span class="prompt">$</span> bikin-dev init "proyek-kamu"', pause: 500 },
+    { html: '', pause: 150 },
+    { html: '<span class="arrow">▸</span> menganalisis kebutuhan', pause: 350 },
+    { html: '<span class="arrow">▸</span> merancang tampilan', pause: 350 },
+    { html: '<span class="arrow">▸</span> menulis kode', pause: 350 },
+    { html: '<span class="arrow">▸</span> testing & revisi', pause: 350 },
+    { html: '', pause: 150 },
+    { html: '<span class="check">✓</span> siap di-deploy', pause: 0 }
+  ];
+  const terminalBody = document.getElementById('terminalBody');
+
+  function typeLine(el, html, cb){
+    el.innerHTML = html + '<span class="cursor"></span>';
+    requestAnimationFrame(() => el.classList.add('shown'));
+    setTimeout(cb, 260);
+  }
+
+  function playTerminal(){
+    terminalBody.innerHTML = '';
+    let idx = 0;
+    function next(){
+      if(idx >= terminalLines.length) return;
+      const lineData = terminalLines[idx];
+      const el = document.createElement('div');
+      el.className = 'line';
+      terminalBody.appendChild(el);
+      typeLine(el, lineData.html, () => {
+        el.querySelector('.cursor')?.remove();
+        idx++;
+        setTimeout(next, lineData.pause);
+      });
+    }
+    next();
+  }
+
+  if(reduceMotion){
+    terminalLines.forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'line shown';
+      el.innerHTML = l.html;
+      terminalBody.appendChild(el);
+    });
+  } else {
+    playTerminal();
+  }
+</script>
+
+</body>
+</html>
